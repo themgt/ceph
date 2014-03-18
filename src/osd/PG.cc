@@ -4766,7 +4766,7 @@ void PG::start_peering_interval(
       if (is_primary()) {
 	// i am (still) primary. but my replica set changed.
 	state_clear(PG_STATE_CLEAN);
-	  
+          
 	dout(10) << oldacting << " -> " << acting
 		 << ", replicas changed" << dendl;
       }
