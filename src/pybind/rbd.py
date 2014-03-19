@@ -112,7 +112,7 @@ class rbd_image_info_t(Structure):
                 ("obj_size", c_uint64),
                 ("num_objs", c_uint64),
                 ("order", c_int),
-                ("block_name_prefix", c_char * 24),
+                ("block_name_prefix", c_char * 25),
                 ("parent_pool", c_int64),
                 ("parent_name", c_char * 96)]
 
