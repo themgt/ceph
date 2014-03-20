@@ -309,10 +309,10 @@ public:
     map<hobject_t, set<pg_shard_t> > missing_loc;
     set<pg_shard_t> missing_loc_sources;
     PG *pg;
-    boost::scoped_ptr<PGBackend::IsReadablePredicate> is_readable;
-    boost::scoped_ptr<PGBackend::IsRecoverablePredicate> is_recoverable;
     set<pg_shard_t> empty_set;
   public:
+    boost::scoped_ptr<PGBackend::IsReadablePredicate> is_readable;
+    boost::scoped_ptr<PGBackend::IsRecoverablePredicate> is_recoverable;
     MissingLoc(PG *pg)
       : pg(pg) {}
     void set_backend_predicates(

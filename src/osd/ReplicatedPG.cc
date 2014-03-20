@@ -8616,30 +8616,33 @@ void ReplicatedPG::sub_op_remove(OpRequestRef op)
 
 eversion_t ReplicatedPG::pick_newest_available(const hobject_t& oid)
 {
-  eversion_t v;
-
-  assert(pg_log.get_missing().is_missing(oid));
-  v = pg_log.get_missing().missing.find(oid)->second.have;
-  dout(10) << "pick_newest_available " << oid << " " << v << " on osd." << osd->whoami << " (local)" << dendl;
+  map<eversion_t, set<pg_shard_t> > versions;
 
   assert(actingbackfill.size() > 0);
   for (set<pg_shard_t>::iterator i = actingbackfill.begin();
        i != actingbackfill.end();
        ++i) {
-    if (*i == get_primary()) continue;
     pg_shard_t peer = *i;
     if (!peer_missing[peer].is_missing(oid)) {
-      assert(is_backfill_targets(peer));
       continue;
     }
     eversion_t h = peer_missing[peer].missing[oid].have;
     dout(10) << "pick_newest_available " << oid << " " << h << " on osd." << peer << dendl;
-    if (h > v)
-      v = h;
+    versions[h].insert(*i);
   }
 
-  dout(10) << "pick_newest_available " << oid << " " << v << " (newest)" << dendl;
-  return v;
+  eversion_t newest_recoverable;
+  for (map<eversion_t, set<pg_shard_t> >::reverse_iterator i = versions.rbegin();
+       i != versions.rend();
+       ++i) {
+    if ((*missing_loc.is_recoverable)(i->second)) {
+      newest_recoverable = i->first;
+      break;
+    }
+  }
+  dout(10) << "pick_newest_available " << oid << " "
+	   << newest_recoverable << " (newest)" << dendl;
+  return newest_recoverable;
 }
 
 
