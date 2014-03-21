@@ -6651,11 +6651,24 @@ void MDCache::trim_non_auth()
   // move everything in the pintail to the top bit of the lru.
   lru.lru_touch_entire_pintail();
 
-  // unpin all subtrees
   for (map<CDir*, set<CDir*> >::iterator p = subtrees.begin();
        p != subtrees.end();
-       ++p) 
+       ++p) {
+    // unpin subtree
     p->first->put(CDir::PIN_SUBTREETEMP);
+
+    // close non-auth sibling dirfrag
+    if (p->first->get_frag() != frag_t()) {
+      CInode *diri = p->first->inode;
+      if (!diri->is_auth()) {
+	list<CDir*> ls;
+	diri->get_nested_dirfrags(ls);
+	for (list<CDir*>::iterator q = ls.begin(); q != ls.end(); ++q)
+	  if ((*q)->get_num_any() == 0)
+	    diri->close_dirfrag((*q)->get_frag());
+      }
+    }
+  }
 
   if (lru.lru_get_size() == 0) {
     // root, stray, etc.?
