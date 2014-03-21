@@ -746,6 +746,7 @@ bool PG::all_unfound_are_queried_or_lost(const OSDMapRef osdmap) const
     if (osd_info.lost_at <= osd_info.up_from) {
       // If there is even one OSD in might_have_unfound that isn't lost, we
       // still might retrieve our unfound.
+      dout(10) << "might still find unfound on " << *peer << dendl;
       return false;
     }
   }
