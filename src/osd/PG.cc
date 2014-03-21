@@ -1457,8 +1457,6 @@ void PG::activate(ObjectStore::Transaction& t,
     if (is_primary()) {
       dout(10) << "activate - starting recovery" << dendl;
       osd->queue_for_recovery(this);
-      if (have_unfound())
-	discover_all_missing(query_map);
     }
   }
     
@@ -1621,6 +1619,8 @@ void PG::activate(ObjectStore::Transaction& t,
       }
 
       build_might_have_unfound();
+      if (have_unfound())
+	discover_all_missing(query_map);
     }
 
     // degraded?
