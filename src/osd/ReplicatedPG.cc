@@ -3202,8 +3202,8 @@ int ReplicatedPG::do_osd_ops(OpContext *ctx, vector<OSDOp>& ops)
 	}
 	dout(10) << __func__ << " CEPH_OSD_OP_CACHE_TRY_FLUSH got result=" << result << dendl;
 	if (result < 0 && result != -EINPROGRESS && result != -ECANCELED) {
-	  dout(10) << __func__ << " CEPH_OSD_OP_CACHE_TRY_FLUSH setting EBUSY result=" << result << dendl;
-	  result = -EBUSY;
+	  dout(10) << __func__ << " CEPH_OSD_OP_CACHE_TRY_FLUSH want to set EBUSY result=" << result << dendl;
+	  //result = -EBUSY;
         }
       }
       break;
