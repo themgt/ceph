@@ -3200,8 +3200,11 @@ int ReplicatedPG::do_osd_ops(OpContext *ctx, vector<OSDOp>& ops)
 	} else {
 	  result = 0;
 	}
-	if (result < 0)
+	dout(10) << __func__ << " CEPH_OSD_OP_CACHE_TRY_FLUSH got result=" << result << dendl;
+	if (result < 0 && result != -EINPROGRESS && result != -ECANCELED) {
+	  dout(10) << __func__ << " CEPH_OSD_OP_CACHE_TRY_FLUSH setting EBUSY result=" << result << dendl;
 	  result = -EBUSY;
+        }
       }
       break;
 
@@ -3229,6 +3232,7 @@ int ReplicatedPG::do_osd_ops(OpContext *ctx, vector<OSDOp>& ops)
 	}
 	// Check special return value which has set missing_return
         if (result == -ENOENT) {
+          dout(10) << __func__ << " CEPH_OSD_OP_CACHE_FLUSH got ENOENT" << dendl;
 	  assert(!missing.is_min());
 	  wait_for_unreadable_object(missing, ctx->op);
 	  //  Error code which is used elsewhere when wait_for_unreadable_object() is used
